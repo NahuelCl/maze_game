@@ -1,6 +1,6 @@
 const {Engine, Render, Runner, World, Bodies} = Matter;
 
-const cells= 5;
+const cells= 3;
 const width = 600;
 const height = 600;
 const engine = Engine.create();
@@ -35,6 +35,21 @@ World.add(world, walls);
 
 //Maze generation
 
+const shuffle = (arr) => {
+    let counter = arr.length;
+
+    while (counter > 0){
+        const index = Math.floor(Math.random() * counter);
+        counter--;
+
+        const temp = arr[counter];
+        arr[counter] = arr[index];
+        arr[index] = temp;
+    }
+    return arr;
+
+};
+
 const grid = Array(cells)
     .fill(null)
     .map (()=>Array(cells).fill(false));
@@ -49,7 +64,53 @@ const horizontals = Array(cells-1)
 
 console.log(grid);
 
+const startRow = Math.floor(Math.random()* cells);
+const startColumn = Math.floor(Math.random()* cells);
 
+const stepThroughCell = (row, column) =>{
+    //Si ya visite la celda en [fila,columna] entonves retorno
+    if(grid[row][column]){
+        return;
+    }
+    //Mrcar la celda como visitada
+    grid[row][column] = true;
+    //Armas aleatoriamente-ordenada lista de vecino
+    const neighbors =shuffle( [
+        [row-1, column,'up'],
+        [row, column+1, 'right'],
+        [row+1, column,'down'],
+        [row, column-1, 'left']
+    ]);
+    //Por cada vecino 
 
+    for(let neighbor of neighbors){
+        const [nextRow, nextColumn, direction]  = neighbor;
+       //Ver si el vecino es visitable
+       if (nextRow < 0 || nextRow >= cells || nextColumn < 0 || nextColumn >= cells){
+           continue; 
+       }
 
+       //Si el vecino es valido peor ya fue visitado , continuas al siguiente vecino 
+       if (grid[nextRow][nextColumn]){
+           continue;
+       }
+       //Borras Pared de horizontles y verticales
+       if ( direction === 'left'){
+           verticals[row][column-1] = true;
+       }else if ( direction === 'right'){
+        verticals[row][column] = true;
+        }else if ( direction === 'up'){
+            horizontals[row-1][column] = true;
+        }else if ( direction === 'down'){
+            horizontals[row][column] = true;
+        }
+        stepThroughCell(nextRow,nextColumn);
+    };   
 
+    
+    // Visitar vecino
+
+};
+
+//stepThroughCell(startRow,startColumn);
+stepThroughCell(1,1);
