@@ -1,6 +1,6 @@
 const {Engine, Render, Runner, World, Bodies, Body, Events} = Matter;
 
-const cells= 3;
+const cells= 7;
 const width = 600;
 const height = 600;
 const engine = Engine.create();
@@ -27,10 +27,10 @@ Runner.run(Runner.create(), engine);
 //Walls
 
 const walls = [
-    Bodies.rectangle(width/2, 0, width, 2, { isStatic: true}),
-    Bodies.rectangle(width/2, height, width, 2, { isStatic: true}),
-    Bodies.rectangle(0, height/2, 2, height, { isStatic: true}),
-    Bodies.rectangle(width, height/2, 2, height, { isStatic: true})
+    Bodies.rectangle(width/2, 0, width, 2, { label:'wall',isStatic: true}),
+    Bodies.rectangle(width/2, height, width, 2, { label:'wall',isStatic: true}),
+    Bodies.rectangle(0, height/2, 2, height, { label:'wall',isStatic: true}),
+    Bodies.rectangle(width, height/2, 2, height, { label:'wall',isStatic: true})
 
 
 ];
@@ -66,7 +66,7 @@ const horizontals = Array(cells-1)
 .fill(null)
 .map(()=>Array(cells).fill(false));
 
-console.log(grid);
+
 
 const startRow = Math.floor(Math.random()* cells);
 const startColumn = Math.floor(Math.random()* cells);
@@ -128,8 +128,9 @@ horizontals.forEach((row, rowIndex) =>{
             columnIndex * unitLength + unitLength/2,
             rowIndex*unitLength+unitLength,
             unitLength,
-            10,
+            5,
             {
+                label:'wall',
                 isStatic: true
             }
         );
@@ -146,9 +147,10 @@ verticals.forEach((row,rowIndex) => {
         const wall = Bodies.rectangle(
             columnIndex * unitLength + unitLength,
             rowIndex * unitLength + unitLength /2,
-            10,
+            5,
             unitLength,
             {
+                label:'wall',
                 isStatic: true
             }
         );
@@ -183,7 +185,7 @@ World.add(world, ball);
 
 document.addEventListener('keydown', event => {
     const { x,y } = ball.velocity;
-    console.log(x,y);
+
     if (event.keyCode === 87){
         Body.setVelocity(ball, {x, y: y-5});
     }
@@ -206,7 +208,14 @@ Events.on(engine, 'collisionStart', event =>{
             const labels = ['ball','goal'];
 
             if(labels.includes(collision.bodyA.label) && labels.includes(collision.bodyB.label)){
-                console.log('User won!!');
+                world.gravity.y = 1;
+                world.bodies.forEach(body =>{
+                    if(body.label === 'wall'){
+                        Body.setStatic(body, false);
+
+                    }
+
+                });
             }
     });
 });
